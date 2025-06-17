@@ -8,7 +8,7 @@ st.title("📊 SMA Crossover Screener with % Return")
 
 # Load CSV file
 try:
-    symbols_df = pd.read_csv("nse_symbols.csv")
+    symbols_df = pd.read_csv("nse_symbols1.csv")
     symbols = symbols_df["Symbol"].dropna().tolist()
 except Exception as e:
     st.error(f"Error loading CSV file: {e}")
