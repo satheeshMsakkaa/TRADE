@@ -3,34 +3,31 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 
-st.set_page_config(page_title="SMA Screener", layout="wide")
-st.title("📊 SMA Crossover Screener with % Return - 700")
+st.title("🔍 SMA Crossover Debug Mode")
 
-# Load symbols from CSV
 try:
-    symbols_df = pd.read_csv("nse_symbols1.csv")
+    symbols_df = pd.read_csv("nse_symbols.csv")
     symbols = symbols_df["Symbol"].dropna().tolist()
 except Exception as e:
-    st.error(f"Error loading symbols.csv: {e}")
+    st.error(f"Error reading CSV: {e}")
     symbols = []
 
-# UI Parameters
 short_window = st.number_input("Short SMA Window", value=10, min_value=1)
 long_window = st.number_input("Long SMA Window", value=50, min_value=2)
 lookback_days = st.number_input("Lookback Days for Crossovers", value=5, min_value=1)
-
-start_date = datetime.now() - timedelta(days=700)
+start_date = datetime.now() - timedelta(days=600)
 end_date = datetime.now()
 
-if st.button("🔍 Run Screener") and symbols:
+if st.button("Run Debug Screener"):
     buy_signals = []
     sell_signals = []
 
-    progress = st.progress(0)
-    for idx, symbol in enumerate(symbols):
+    for symbol in symbols:
+        st.write(f"Checking: {symbol}")
         try:
             df = yf.download(symbol, start=start_date, end=end_date, progress=False)
-            if df.empty or "Close" not in df.columns:
+            if df.empty:
+                st.warning(f"No data for {symbol}")
                 continue
 
             df["Short_SMA"] = df["Close"].rolling(window=short_window).mean()
@@ -40,53 +37,19 @@ if st.button("🔍 Run Screener") and symbols:
             df["Signal"] = (df["Short_SMA"] > df["Long_SMA"]).astype(int)
             df["Position"] = df["Signal"].diff()
 
-            recent = df[df.index >= (df.index[-1] - pd.Timedelta(days=lookback_days))]
+            st.dataframe(df.tail(5))
 
-            # BUY
-            buy_cross = recent[recent["Position"] == 1]
-            if not buy_cross.empty:
-                last_buy = buy_cross.iloc[-1]
-                close = last_buy.get("Close")
-                long_sma_val = last_buy.get("Long_SMA")
-
-                if pd.notnull(close) and pd.notnull(long_sma_val) and long_sma_val != 0:
-                    ret_pct = ((close - long_sma_val) / long_sma_val) * 100
-                    buy_signals.append({
-                        "Symbol": symbol,
-                        "Crossover Date": last_buy.name.strftime("%Y-%m-%d"),
-                        "Close Price": round(close, 2),
-                        f"Long SMA ({long_window})": round(long_sma_val, 2),
-                        "Return %": round(ret_pct, 2)
-                    })
-
-            # SELL
-            sell_cross = recent[recent["Position"] == -1]
-            if not sell_cross.empty:
-                sell_signals.append({
-                    "Symbol": symbol,
-                    "Crossover Date": sell_cross.index[-1].strftime("%Y-%m-%d")
-                })
+            last_pos = df["Position"].iloc[-1]
+            if last_pos == 1:
+                st.success(f"✅ BUY signal for {symbol}")
+                buy_signals.append(symbol)
+            elif last_pos == -1:
+                st.error(f"❌ SELL signal for {symbol}")
+                sell_signals.append(symbol)
+            else:
+                st.info(f"No recent crossover for {symbol}")
 
         except Exception as e:
-            st.warning(f"Error processing {symbol}: {e}")
-            continue
+            st.error(f"Error processing {symbol}: {e}")
 
-        progress.progress((idx + 1) / len(symbols))
-
-    st.success("✅ Screening complete!")
-
-    # Display Buy
-    if buy_signals:
-        st.subheader("📈 Buy Signals")
-        df_buy = pd.DataFrame(buy_signals)
-        df_buy = df_buy.sort_values("Return %", ascending=False)
-        st.dataframe(df_buy, use_container_width=True)
-    else:
-        st.info("No Buy Signals found.")
-
-    # Display Sell
-    if sell_signals:
-        st.subheader("📉 Sell Signals")
-        st.dataframe(pd.DataFrame(sell_signals), use_container_width=True)
-    else:
-        st.info("No Sell Signals found.")
+    st.write("Done.")
