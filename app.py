@@ -9,7 +9,7 @@ st.title("📊 All NSE Symbols Strategy Signal Dashboard")
 
 @st.cache_data
 def load_nse_symbols():
-    return pd.read_csv("nse_symbols.csv")
+    return pd.read_csv("nse_symbols1.csv")
 
 symbols_df = load_nse_symbols()
 symbols = symbols_df["Symbol"].tolist()
