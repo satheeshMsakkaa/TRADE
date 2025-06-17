@@ -26,6 +26,7 @@ if st.button("📊 Run All Strategies for All Symbols"):
     for symbol in symbols:
         try:
             df = yf.download(symbol, start=start_date)
+            time.sleep(1)
             if df.empty:
                 st.warning(f"No data found for {symbol}")
                 continue
