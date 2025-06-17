@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import yfinance as yf
 import numpy as np
+import time
 
 st.set_page_config(page_title="📈 Multi-Symbol Strategy Dashboard", layout="wide")
 st.title("📊 All NSE Symbols Strategy Signal Dashboard")
