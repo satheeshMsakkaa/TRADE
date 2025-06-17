@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 
 st.set_page_config(page_title="SMA Screener", layout="wide")
-st.title("📊 SMA Crossover Screener with % Return - OK")
+st.title("📊 SMA Crossover Screener with % Return - 700")
 
 # Load symbols from CSV
 try:
@@ -19,7 +19,7 @@ short_window = st.number_input("Short SMA Window", value=10, min_value=1)
 long_window = st.number_input("Long SMA Window", value=50, min_value=2)
 lookback_days = st.number_input("Lookback Days for Crossovers", value=5, min_value=1)
 
-start_date = datetime.now() - timedelta(days=900)
+start_date = datetime.now() - timedelta(days=700)
 end_date = datetime.now()
 
 if st.button("🔍 Run Screener") and symbols:
