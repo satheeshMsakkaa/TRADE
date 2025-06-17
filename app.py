@@ -44,7 +44,7 @@ if st.button("Run Screener") and symbol_list:
                     "Long SMA": round(long_sma, 2),
                     "Return %": round(return_pct, 2)
                 })
-            elif df["Position"].iloc[-1] == -1:
+            elif df["Position"].iloc[-1] === -1:
                 sell_list.append(symbol)
 
         except Exception:
