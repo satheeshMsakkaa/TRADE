@@ -49,7 +49,7 @@ if st.button("🔍 Run Screener") and symbols:
                 close = last_buy.get("Close")
                 long_sma_val = last_buy.get("Long_SMA")
 
-                if close and long_sma_val and long_sma_val != 0:
+                if pd.notnull(close) and pd.notnull(long_sma_val) and long_sma_val != 0:
                     ret_pct = ((close - long_sma_val) / long_sma_val) * 100
                     buy_signals.append({
                         "Symbol": symbol,
@@ -90,12 +90,3 @@ if st.button("🔍 Run Screener") and symbols:
         st.dataframe(pd.DataFrame(sell_signals), use_container_width=True)
     else:
         st.info("No Sell Signals found.")
-
-    # Optional chart
-    st.subheader("📊 SMA Chart Viewer (Optional)")
-    selected = st.selectbox("Choose a stock to visualize:", symbols)
-    if selected:
-        chart_df = yf.download(selected, start=start_date, end=end_date, progress=False)
-        chart_df["Short_SMA"] = chart_df["Close"].rolling(window=short_window).mean()
-        chart_df["Long_SMA"] = chart_df["Close"].rolling(window=long_window).mean()
-        st.line_chart(chart_df[["Close", "Short_SMA", "Long_SMA"]].dropna().tail(100))
