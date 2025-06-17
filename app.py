@@ -3,29 +3,35 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 
+st.set_page_config(page_title="SMA Screener", layout="wide")
 st.title("📊 SMA Crossover Screener with % Return")
 
-# Load symbols.csv
+# Load CSV file
 try:
-    symbol_df = pd.read_csv("nse_symbols1.csv")
-    symbol_list = symbol_df["Symbol"].dropna().unique().tolist()
+    symbols_df = pd.read_csv("symbols.csv")
+    symbols = symbols_df["symbol"].dropna().tolist()
 except Exception as e:
-    st.error(f"CSV Load Error: {e}")
-    symbol_list = []
+    st.error(f"Error loading CSV file: {e}")
+    symbols = []
 
-short_window = st.number_input("Short SMA", value=10, min_value=1)
-long_window = st.number_input("Long SMA", value=50, min_value=2)
-start_date = st.date_input("Start Date", datetime.now() - timedelta(days=60))
+# UI controls
+short_window = st.number_input("Short SMA Window", value=10, min_value=1)
+long_window = st.number_input("Long SMA Window", value=50, min_value=2)
+start_date = st.date_input("Start Date", datetime.now() - timedelta(days=90))
 end_date = st.date_input("End Date", datetime.now())
 
-if st.button("Run Screener") and symbol_list:
-    buy_data = []
-    sell_list = []
+# Run button
+if st.button("Run Screener") and symbols:
+    buy_signals = []
+    sell_signals = []
 
     progress = st.progress(0)
-    for idx, symbol in enumerate(symbol_list):
+    for i, symbol in enumerate(symbols):
         try:
             df = yf.download(symbol, start=start_date, end=end_date, progress=False)
+            if df.empty or "Close" not in df:
+                continue
+
             df["Short_SMA"] = df["Close"].rolling(window=short_window).mean()
             df["Long_SMA"] = df["Close"].rolling(window=long_window).mean()
             df.dropna(inplace=True)
@@ -33,34 +39,33 @@ if st.button("Run Screener") and symbol_list:
             df["Signal"] = (df["Short_SMA"] > df["Long_SMA"]).astype(int)
             df["Position"] = df["Signal"].diff()
 
-            # Check for crossover today
-            if df["Position"].iloc[-1] == 1:
-                close_price = df["Close"].iloc[-1]
-                long_sma = df["Long_SMA"].iloc[-1]
-                return_pct = ((close_price - long_sma) / long_sma) * 100
-                buy_data.append({
-                    "Symbol": symbol,
-                    "Close Price": round(close_price, 2),
-                    "Long SMA": round(long_sma, 2),
-                    "Return %": round(return_pct, 2)
-                })
-            if df["Position"].iloc[-1] == -1:
-                sell_list.append(symbol)
-
-        except Exception:
+            if len(df) >= 1:
+                last = df.iloc[-1]
+                if last["Position"] == 1:
+                    ret = ((last["Close"] - last["Long_SMA"]) / last["Long_SMA"]) * 100
+                    buy_signals.append({
+                        "Symbol": symbol,
+                        "Close Price": round(last["Close"], 2),
+                        f"Long SMA ({long_window})": round(last["Long_SMA"], 2),
+                        "Return %": round(ret, 2)
+                    })
+                elif last["Position"] == -1:
+                    sell_signals.append(symbol)
+        except Exception as e:
             continue
-        progress.progress((idx + 1) / len(symbol_list))
+        progress.progress((i + 1) / len(symbols))
 
-    st.success("Screening Complete ✅")
+    st.success("Screening completed!")
 
-    if buy_data:
-        st.subheader("📈 Buy Signal Today (with % Return)")
-        st.dataframe(pd.DataFrame(buy_data).sort_values(by="Return %", ascending=False))
+    if buy_signals:
+        st.subheader("📈 Buy Signals")
+        df_buy = pd.DataFrame(buy_signals).sort_values("Return %", ascending=False)
+        st.dataframe(df_buy, use_container_width=True)
     else:
-        st.info("No Buy Signals Today")
+        st.info("No Buy Signals Today.")
 
-    if sell_list:
-        st.subheader("📉 Sell Signal Today")
-        st.write(sell_list)
+    if sell_signals:
+        st.subheader("📉 Sell Signals")
+        st.write(sell_signals)
     else:
-        st.info("No Sell Signals Today")
+        st.info("No Sell Signals Today.")
