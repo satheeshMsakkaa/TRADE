@@ -26,9 +26,9 @@ if st.button("📊 Run All Strategies for All Symbols"):
     for symbol in symbols:
         try:
             df = yf.download(symbol, start=start_date)
-            if df.empty or "Close" not in df.columns:
-            st.warning(f"No data found for {symbol}")
-            continue
+            if df.empty:
+                st.warning(f"No data found for {symbol}")
+                continue
         except Exception as e:
             st.error(f"Failed to fetch data for {symbol}:{e}")
             continue
