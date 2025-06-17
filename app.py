@@ -13,6 +13,7 @@ def load_nse_symbols():
 
 symbols_df = load_nse_symbols()
 symbols = symbols_df["Symbol"].tolist()
+st.warning(f"SYMBOL{symbols}")
 start_date = st.date_input("Start Date", pd.to_datetime("2023-01-01"))
 
 col1, col2 = st.columns(2)
