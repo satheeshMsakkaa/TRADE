@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 st.title("🔍 SMA Crossover Debug Mode")
 
 try:
-    symbols_df = pd.read_csv("nse_symbols.csv")
+    symbols_df = pd.read_csv("nse_symbols1.csv")
     symbols = symbols_df["Symbol"].dropna().tolist()
 except Exception as e:
     st.error(f"Error reading CSV: {e}")
@@ -15,7 +15,7 @@ except Exception as e:
 short_window = st.number_input("Short SMA Window", value=10, min_value=1)
 long_window = st.number_input("Long SMA Window", value=50, min_value=2)
 lookback_days = st.number_input("Lookback Days for Crossovers", value=5, min_value=1)
-start_date = datetime.now() - timedelta(days=600)
+start_date = datetime.now() - timedelta(days=90)
 end_date = datetime.now()
 
 if st.button("Run Debug Screener"):
@@ -37,7 +37,7 @@ if st.button("Run Debug Screener"):
             df["Signal"] = (df["Short_SMA"] > df["Long_SMA"]).astype(int)
             df["Position"] = df["Signal"].diff()
 
-            st.dataframe(df.tail(5))
+            # st.dataframe(df.tail(5))
 
             last_pos = df["Position"].iloc[-1]
             if last_pos == 1:
