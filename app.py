@@ -15,7 +15,7 @@ except Exception as e:
 short_window = st.number_input("Short SMA Window", value=10, min_value=1)
 long_window = st.number_input("Long SMA Window", value=50, min_value=2)
 lookback_days = st.number_input("Lookback Days for Crossovers", value=5, min_value=1)
-start_date = datetime.now() - timedelta(days=90)
+start_date = datetime.now() - timedelta(days=180)
 end_date = datetime.now()
 
 if st.button("Run Debug Screener"):
