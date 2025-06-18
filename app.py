@@ -46,7 +46,7 @@ if st.button("Run Debug Screener"):
             elif last_pos == -1:
                 st.error(f"❌ SELL signal for {symbol}")
                 sell_signals.append(symbol)
-            else:
+            # else:
                 # st.info(f"No recent crossover for {symbol}")
 
         except Exception as e:
