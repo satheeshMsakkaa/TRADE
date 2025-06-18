@@ -58,7 +58,7 @@ if st.button("Run Screener"):
             # else:
                 # st.info(f"No recent crossover for {symbol}")
 
-        # except Exception as e:
+        except Exception as e:
             # st.error(f"Error processing {symbol}: {e}")
 
     progress.empty()
