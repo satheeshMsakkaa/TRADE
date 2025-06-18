@@ -27,7 +27,7 @@ if st.button("Run Debug Screener"):
         try:
             df = yf.download(symbol, start=start_date, end=end_date, progress=False)
             if df.empty:
-                st.warning(f"No data for {symbol}")
+                # st.warning(f"No data for {symbol}")
                 continue
 
             df["Short_SMA"] = df["Close"].rolling(window=short_window).mean()
