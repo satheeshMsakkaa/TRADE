@@ -3,7 +3,11 @@ import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 
-st.title("🔍 SMA Crossover Debug Mode")
+st.title("🔍 SMA Crossover")
+
+# State to manage button status
+if "in_progress" not in st.session_state:
+    st.session_state.in_progress = False
 
 try:
     symbols_df = pd.read_csv("nse_symbols.csv")
@@ -18,11 +22,14 @@ lookback_days = st.number_input("Lookback Days for Crossovers", value=5, min_val
 start_date = datetime.now() - timedelta(days=90)
 end_date = datetime.now()
 
-if st.button("Run Debug Screener"):
+if st.button("Run Screener", disabled=st.session_state.in_progress):
+    st.session_state.in_progress = True
+    progress = st.progress(0)
     buy_signals = []
     sell_signals = []
-
-    for symbol in symbols:
+    total = len(symbols)
+    for i, symbol in enumerate(symbols):
+        progress.progress((i + 1) / total)
         # st.write(f"Checking: {symbol}")
         try:
             df = yf.download(symbol, start=start_date, end=end_date, progress=False)
@@ -52,4 +59,6 @@ if st.button("Run Debug Screener"):
         except Exception as e:
             st.error(f"Error processing {symbol}: {e}")
 
+    progress.empty()
+    st.session_state.in_progress = False
     st.write("Done.")
