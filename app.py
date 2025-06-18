@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 st.title("🔍 SMA Crossover Debug Mode")
 
 try:
-    symbols_df = pd.read_csv("nse_symbols1.csv")
+    symbols_df = pd.read_csv("nse_symbols.csv")
     symbols = symbols_df["Symbol"].dropna().tolist()
 except Exception as e:
     st.error(f"Error reading CSV: {e}")
@@ -23,7 +23,7 @@ if st.button("Run Debug Screener"):
     sell_signals = []
 
     for symbol in symbols:
-        st.write(f"Checking: {symbol}")
+        # st.write(f"Checking: {symbol}")
         try:
             df = yf.download(symbol, start=start_date, end=end_date, progress=False)
             if df.empty:
