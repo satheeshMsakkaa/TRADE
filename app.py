@@ -58,8 +58,8 @@ if st.button("Run Screener"):
             # else:
                 # st.info(f"No recent crossover for {symbol}")
 
-        except Exception as e:
-            st.error(f"Error processing {symbol}: {e}")
+        # except Exception as e:
+            # st.error(f"Error processing {symbol}: {e}")
 
     progress.empty()
     st.session_state.in_progress = False
