@@ -37,7 +37,7 @@ if st.button("Run Debug Screener"):
             df["Signal"] = (df["Short_SMA"] > df["Long_SMA"]).astype(int)
             df["Position"] = df["Signal"].diff()
 
-            st.dataframe(df.tail(90))
+            # st.dataframe(df.tail(90))
 
             last_pos = df["Position"].iloc[-1]
             if last_pos == 1:
@@ -47,7 +47,7 @@ if st.button("Run Debug Screener"):
                 st.error(f"❌ SELL signal for {symbol}")
                 sell_signals.append(symbol)
             else:
-                st.info(f"No recent crossover for {symbol}")
+                # st.info(f"No recent crossover for {symbol}")
 
         except Exception as e:
             st.error(f"Error processing {symbol}: {e}")
