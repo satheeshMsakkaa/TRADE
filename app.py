@@ -25,11 +25,13 @@ end_date = datetime.now()
 if st.button("Run Screener", disabled=st.session_state.in_progress):
     st.session_state.in_progress = True
     progress = st.progress(0)
+    status_text = st.empty()
     buy_signals = []
     sell_signals = []
     total = len(symbols)
     for i, symbol in enumerate(symbols):
         progress.progress((i + 1) / total)
+        status_text.text(f"Processing {symbol} ({i+1}/{total})...")
         # st.write(f"Checking: {symbol}")
         try:
             df = yf.download(symbol, start=start_date, end=end_date, progress=False)
